@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(atividade_uart atividade_uart.c )
+add_executable(atividade_uart atividade_uart.c inc/ssd1306.c)
 
 pico_set_program_name(atividade_uart "atividade_uart")
 pico_set_program_version(atividade_uart "0.1")
