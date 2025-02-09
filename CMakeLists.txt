@@ -55,8 +55,8 @@ target_include_directories(atividade_uart PRIVATE
 
 # Add any user requested libraries
 target_link_libraries(atividade_uart 
-        
-        )
+    hardware_i2c
+)
 
 pico_add_extra_outputs(atividade_uart)
 
