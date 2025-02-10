@@ -37,6 +37,8 @@ pico_sdk_init()
 
 add_executable(atividade_uart atividade_uart.c inc/ssd1306.c)
 
+pico_generate_pio_header(atividade_uart ${CMAKE_CURRENT_LIST_DIR}/pio_matrix.pio)
+
 pico_set_program_name(atividade_uart "atividade_uart")
 pico_set_program_version(atividade_uart "0.1")
 
