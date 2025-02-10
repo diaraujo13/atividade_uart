@@ -8,7 +8,7 @@ int main()
     bool ok;
     uint16_t i;
     uint32_t valor_led;
-    double r = 0.1, b = 0.0, g = 0.0;
+    double r = 0.0, b = 0.3, g = 0.0;
 
     ok = set_sys_clock_khz(128000, false);
 
@@ -68,16 +68,18 @@ void initialize_gpio_pins()
 
 void gpio_irq_handler_cb(uint gpio, uint32_t events)
 {
-    absolute_time_t now = get_absolute_time();
-    if (absolute_time_diff_us(last_interrupt_time, now) < 50000)
+    absolute_time_t now =  to_us_since_boot(get_absolute_time());;
+    if (absolute_time_diff_us(last_interrupt_time, now) < 200000)
     {
         return;
     }
+
     last_interrupt_time = now;
 
     // Pressionar o botão A deve alternar o estado do LED RGB Verde (ligado/desligado)
     if (gpio == BTN_A_PIN)
     {
+        gpio_put(LED_BLUE_PIN, 0);
         gpio_put(LED_GREEN_PIN, !gpio_get(LED_GREEN_PIN));
         // Uma mensagem informativa sobre o estado do LED deve ser exibida no display SSD1306
         bool led_state = gpio_get(LED_GREEN_PIN);
@@ -87,11 +89,14 @@ void gpio_irq_handler_cb(uint gpio, uint32_t events)
         ssd1306_send_data(&ssd);
         // Um texto descritivo sobre a operação deve ser enviado ao Serial Monitor
         uart_puts(UART_ID, msg);
+        printf("%s\n", msg);
     }
     // Pressionar o botão B deve alternar o estado do LED RGB Azul (ligado/desligado).
     else if (gpio == BTN_B_PIN)
     {
+        gpio_put(LED_GREEN_PIN, 0);
         gpio_put(LED_BLUE_PIN, !gpio_get(LED_BLUE_PIN));
+
         // Uma mensagem informativa sobre o estado do LED deve ser exibida no display SSD1306
         bool led_state = gpio_get(LED_GREEN_PIN);
         const char *msg = led_state ? "LED BLUE LIGADO" : "LED BLUE DESLIGADO";
@@ -99,7 +104,8 @@ void gpio_irq_handler_cb(uint gpio, uint32_t events)
         ssd1306_draw_string(&ssd, msg, 10, 10);
         ssd1306_send_data(&ssd);
         // Um texto descritivo sobre a operação deve ser enviado ao Serial Monitor
-        uart_puts(UART_ID, msg);
+        //uart_puts(UART_ID, msg);
+        printf("%s\n", msg);
 
     }
 }
@@ -151,9 +157,9 @@ void update_display(ssd1306_t *ssd, bool *color_flag)
     *color_flag = !(*color_flag);
     ssd1306_fill(ssd, !(*color_flag));
     ssd1306_rect(ssd, 3, 3, 122, 58, *color_flag, !(*color_flag));
-    ssd1306_draw_string(ssd, "CEPEDI   TIC37", 8, 10);
-    ssd1306_draw_string(ssd, "EMBARCATECH", 20, 30);
-    ssd1306_draw_string(ssd, "PROF WILTON", 15, 48);
+    ssd1306_draw_string(ssd, msg_headline, 8, 10);
+    ssd1306_draw_string(ssd, msg_body, 8, 30);
+    ssd1306_draw_string(ssd, msg_footer, 8, 48);
     ssd1306_send_data(ssd);
 }
 

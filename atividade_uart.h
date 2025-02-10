@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "inc/ssd1306.h"
@@ -36,6 +37,9 @@ static const uint I2C_SPEED = 400 * 1000;   // Operando à 400 kHz
 static const uint OLED_ADDR = 0x3C; // Endereço do display OLED
 
 static ssd1306_t ssd;  // Controller do display OLED
+const char *msg_headline = "ATIVIDADE-U4C6"; // Mensagem de cabeçalho
+const char *msg_body = "Press. BTN A/B"; // Mensagem de corpo
+const char *msg_footer = "P/ continuar"; // Mensagem de rodapé
 
 static uart_inst_t* const UART_ID = uart1;
 static const uint BAUD_RATE = 115200;
