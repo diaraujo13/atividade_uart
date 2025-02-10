@@ -39,8 +39,10 @@ static ssd1306_t ssd;  // Controller do display OLED
 
 static uart_inst_t* const UART_ID = uart1;
 static const uint BAUD_RATE = 115200;
+
 static const uint UART_TX_PIN = 4; // Pino TX
 static const uint UART_RX_PIN = 5; // Pino RX
+
 
 
 //-------------------------------------------------------------------------
@@ -52,6 +54,7 @@ void display_digit(int digit, uint32_t valor_led, PIO pio, uint sm, double r, do
 void init_i2c();
 void init_display(ssd1306_t *ssd);
 void update_display(ssd1306_t *ssd, bool *color_flag);
+void init_uart();
 
 //-------------------------------------------------------------------------
 
