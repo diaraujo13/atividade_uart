@@ -8,7 +8,7 @@ int main()
     bool ok;
     uint16_t i;
     uint32_t valor_led;
-    double r = 1.0, b = 0.0, g = 0.0;
+    double r = 0.01, b = 0.0, g = 0.0;
 
     ok = set_sys_clock_khz(128000, false);
 
@@ -28,15 +28,52 @@ int main()
     uint sm = pio_claim_unused_sm(pio, true);
     pio_matrix_program_init(pio, sm, offset, LED_MATRIX_PIN);
 
+    display_digit(digit, valor_led, pio, sm, r, g, b);
+
 
 
     while (true)
     {
-        int c = getchar_timeout_us(1000000); 
+        
+        int c = getchar_timeout_us(0); 
         
         if (c != PICO_ERROR_TIMEOUT)
         {
-            uart_rx_handler(c);
+            // Display character on SSD1306
+            msg_body = "Retorno " + c;
+
+            // If character is a number between 0 and 9, display on WS2812
+            if (c == '0'){
+                digit = 0;
+                digit_changed = true;
+            } else if (c == '1'){
+                digit = 1;
+                digit_changed = true;
+            } else if (c == '2'){
+                digit = 2;
+                digit_changed = true;
+            } else if (c == '3'){
+                digit = 3;
+                digit_changed = true;
+            } else if (c == '4'){
+                digit = 4;
+                digit_changed = true;
+            } else if (c == '5'){
+                digit = 5;
+                digit_changed = true;
+            } else if (c == '6'){
+                digit = 6;
+                digit_changed = true;
+            } else if (c == '7'){
+                digit = 7;
+                digit_changed = true;
+            } else if (c == '8'){
+                digit = 8;
+                digit_changed = true;
+            } else if (c == '9'){
+                digit = 9;
+                digit_changed = true;
+            }
         }
 
         if (digit_changed)
@@ -44,6 +81,7 @@ int main()
             display_digit(digit, valor_led, pio, sm, r, g, b);
             digit_changed = false;
         }
+
         update_display(&ssd, &color_flag);
         sleep_ms(1000);
     }
@@ -180,12 +218,10 @@ void init_uart()
 }
 
 void uart_rx_handler(int c) {
-
     if (c) {
-        printf("%c", c);
+        printf("Foi retornado %c", c);
         msg_body = "Recebido: " + c;
     }
-
 
     // If character is a number between 0 and 9, display on WS2812
     if (c >= '0' && c <= '9') {
@@ -193,5 +229,6 @@ void uart_rx_handler(int c) {
         digit_changed = true;
     }
 }
+
 
 
