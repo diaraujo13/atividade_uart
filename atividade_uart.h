@@ -59,13 +59,15 @@ void init_i2c();
 void init_display(ssd1306_t *ssd);
 void update_display(ssd1306_t *ssd, bool *color_flag);
 void init_uart();
+void uart_rx_handler(int c);
 
 //-------------------------------------------------------------------------
 
 volatile uint digit = 0;
 volatile bool digit_changed = false;
 volatile absolute_time_t last_interrupt_time = {0};
-
+volatile bool green_led_last_state = false;
+volatile bool blue_led_last_state = false;
 //-------------------------------------------------------------------------
 
 #endif // _MAIN_H

@@ -8,7 +8,7 @@ int main()
     bool ok;
     uint16_t i;
     uint32_t valor_led;
-    double r = 0.0, b = 0.3, g = 0.0;
+    double r = 1.0, b = 0.0, g = 0.0;
 
     ok = set_sys_clock_khz(128000, false);
 
@@ -28,8 +28,17 @@ int main()
     uint sm = pio_claim_unused_sm(pio, true);
     pio_matrix_program_init(pio, sm, offset, LED_MATRIX_PIN);
 
+
+
     while (true)
     {
+        int c = getchar_timeout_us(1000000); 
+        
+        if (c != PICO_ERROR_TIMEOUT)
+        {
+            uart_rx_handler(c);
+        }
+
         if (digit_changed)
         {
             display_digit(digit, valor_led, pio, sm, r, g, b);
@@ -79,36 +88,36 @@ void gpio_irq_handler_cb(uint gpio, uint32_t events)
     // Pressionar o botão A deve alternar o estado do LED RGB Verde (ligado/desligado)
     if (gpio == BTN_A_PIN)
     {
+        bool green_led_new_state = !green_led_last_state;
+
         gpio_put(LED_BLUE_PIN, 0);
-        gpio_put(LED_GREEN_PIN, !gpio_get(LED_GREEN_PIN));
+        gpio_put(LED_GREEN_PIN, green_led_new_state);
+        
         // Uma mensagem informativa sobre o estado do LED deve ser exibida no display SSD1306
-        bool led_state = gpio_get(LED_GREEN_PIN);
-        const char *msg = led_state ? "LED VERDE LIGADO" : "LED VERDE DESLIGADO";
-        ssd1306_fill(&ssd, false);
-        ssd1306_draw_string(&ssd, msg, 10, 10);
-        ssd1306_send_data(&ssd);
-        // Um texto descritivo sobre a operação deve ser enviado ao Serial Monitor
-        uart_puts(UART_ID, msg);
-        printf("%s\n", msg);
+        msg_body = green_led_new_state ? "LED VERDE ON" : "LED VERDE OFF";
+
+        printf("%s\n", msg_body);
+
+        green_led_last_state = green_led_new_state;
+
     }
     // Pressionar o botão B deve alternar o estado do LED RGB Azul (ligado/desligado).
     else if (gpio == BTN_B_PIN)
     {
+        bool blue_led_new_state = !blue_led_last_state;
+        
         gpio_put(LED_GREEN_PIN, 0);
-        gpio_put(LED_BLUE_PIN, !gpio_get(LED_BLUE_PIN));
+        gpio_put(LED_BLUE_PIN, blue_led_new_state);
 
         // Uma mensagem informativa sobre o estado do LED deve ser exibida no display SSD1306
-        bool led_state = gpio_get(LED_GREEN_PIN);
-        const char *msg = led_state ? "LED BLUE LIGADO" : "LED BLUE DESLIGADO";
-        ssd1306_fill(&ssd, false);
-        ssd1306_draw_string(&ssd, msg, 10, 10);
-        ssd1306_send_data(&ssd);
-        // Um texto descritivo sobre a operação deve ser enviado ao Serial Monitor
-        //uart_puts(UART_ID, msg);
-        printf("%s\n", msg);
+        msg_body = blue_led_new_state ? "LED AZUL ON" : "LED AZUL OFF";
+        
+        printf("%s\n", msg_body);
 
+        blue_led_last_state = blue_led_new_state;
     }
 }
+
 
 uint32_t matrix_rgb(double b, double r, double g)
 {
@@ -169,3 +178,20 @@ void init_uart()
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 }
+
+void uart_rx_handler(int c) {
+
+    if (c) {
+        printf("%c", c);
+        msg_body = "Recebido: " + c;
+    }
+
+
+    // If character is a number between 0 and 9, display on WS2812
+    if (c >= '0' && c <= '9') {
+        digit = c - '0';
+        digit_changed = true;
+    }
+}
+
+
