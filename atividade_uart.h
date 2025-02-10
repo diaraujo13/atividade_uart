@@ -9,6 +9,7 @@
 #include "pico/bootrom.h"
 #include "hardware/pio.h"
 #include "hardware/adc.h"
+#include "hardware/uart.h"
 
 #include "pio_matrix.pio.h"
 
@@ -33,6 +34,8 @@ static const uint I2C_SDA  = 14; // Pinos I2C SDA
 static const uint I2C_SCL  = 15; // Pinos I2C SCL
 static const uint I2C_SPEED = 400 * 1000;   // Operando à 400 kHz
 static const uint OLED_ADDR = 0x3C; // Endereço do display OLED
+
+static ssd1306_t ssd;  // Controller do display OLED
 
 static uart_inst_t* const UART_ID = uart1;
 static const uint BAUD_RATE = 115200;
